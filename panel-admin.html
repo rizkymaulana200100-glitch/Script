@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ADMIN - FIX LINK PER PRODUK 765+++</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#08080c;color:#fff;font-family:Arial;padding:12px;padding-bottom:100px}
+.header{background:linear-gradient(90deg,#ff0000,#ff8a00);padding:18px;border-radius:15px;text-align:center;border:2px solid #ff0000}
+.card{background:#15151e;border:1px solid #2a2a3a;border-radius:14px;padding:12px;margin:10px 0}
+.btn{width:100%;padding:12px;border:none;border-radius:10px;font-weight:bold;margin:4px 0;cursor:pointer}
+.btn-green{background:#00c853;color:#fff}.btn-red{background:#ff1744;color:#fff}.btn-blue{background:#2962ff;color:#fff}.btn-orange{background:#ff6d00;color:#fff}.btn-dark{background:#222;color:#fff}
+input,textarea{width:100%;background:#0e0e14;border:1px solid #333;color:#fff;padding:12px;border-radius:10px;margin:6px 0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.filebox{border:2px dashed #00e676;padding:12px;border-radius:10px;text-align:center;margin:6px 0}
+.filebox2{border:2px dashed #ff8a00;padding:12px;border-radius:10px;text-align:center;margin:6px 0}
+.filebox-banner{border:2px dashed #ff00ff;padding:12px;border-radius:10px;text-align:center;margin:6px 0;background:#1a0e1a}
+.img-prod{width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:8px;border:1px solid #333}
+.badge{background:linear-gradient(90deg,#ff0000,#ff8a00);color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:bold}
+.link-preview{background:#0e0e14;border:1px solid #00e676;border-radius:10px;padding:10px;margin:6px 0;word-break:break-all;font-size:11px}
+.banner-preview-item{position:relative;border:2px solid #ff00ff;border-radius:12px;overflow:hidden;margin:8px 0;background:#000}
+.banner-preview-item img{width:100%;height:160px;object-fit:cover}
+.banner-info{padding:8px;background:rgba(0,0,0,0.9)}
+.tabs-order{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
+.tab-o{flex:1;min-width:70px;padding:10px;border-radius:10px;text-align:center;font-size:11px;font-weight:bold;cursor:pointer;border:1px solid #333;transition:0.2s}
+.tab-o.active{background:linear-gradient(90deg,#ff0000,#ff8a00);color:#fff}.tab-o.inactive{background:#15151e;color:#aaa}
+.stat-box{background:#0e0e14;border:1px solid #333;border-radius:12px;padding:10px;text-align:center}
+.order-card{background:#15151e;border-left:4px solid #00e676;border-radius:12px;padding:10px;margin:8px 0;border:1px solid #2a2a3a}
+.order-card.pending{border-left-color:#ff8a00}.order-card.approved{border-left-color:#00e676}.order-card.rejected{border-left-color:#ff1744}
+.search-box{background:#0e0e14;border:2px solid #2962ff;border-radius:12px;padding:8px;margin:8px 0}
+</style></head><body>
+<div class="header">
+<h1>👑 ADMIN FIX 765+++</h1>
+<p>LINK PER PRODUK - NAMA & LINK SESUAI PEMBELIAN</p>
+<small id="storageInfo" style="color:#aaa"></small><br><small id="infoDB" style="color:#00e676"></small>
+</div>
+<div class="card" style="border:2px solid #2962ff">
+<h3 style="color:#2962ff">📊 STAT ORDER</h3>
+<div class="row3">
+<div class="stat-box"><b id="statTotal">0</b><br><small>Total</small></div>
+<div class="stat-box"><b id="statPending" style="color:#ff8a00">0</b><br><small>Pending</small></div>
+<div class="stat-box"><b id="statApproved" style="color:#00e676">0</b><br><small>ACC</small></div>
+</div>
+<div class="row" style="margin-top:8px">
+<div class="stat-box"><b id="statRejected" style="color:#ff1744">0</b><br><small>Ditolak</small></div>
+<div class="stat-box"><b id="statOmset" style="color:#ffea00">Rp 0</b><br><small>Omset</small></div>
+</div>
+</div>
+<div class="card" style="border:2px solid #ff00ff;background:linear-gradient(135deg,#1a0e1a,#0e0e14)">
+<h3 style="color:#ff00ff">🖼️ BANER</h3>
+<input type="hidden" id="b_idx" value="-1">
+<input id="b_title" placeholder="Judul Baner">
+<input id="b_sub" placeholder="Sub judul">
+<div class="row"><input id="b_link" placeholder="Link klik"><input id="b_prodId" type="number" placeholder="ID Produk"></div>
+<div class="filebox-banner">
+<b style="color:#ff00ff">📸 GAMBAR BANER</b><br>
+<input type="file" accept="image/*" onchange="setBannerImg(this)">
+<p id="bannerInfo">Upload</p>
+<img id="bannerPreview" style="display:none;width:100%;max-height:200px;border-radius:10px;margin-top:8px;object-fit:cover;border:2px solid #ff00ff">
+</div>
+<div class="row"><button class="btn btn-dark" onclick="resetBannerForm()">RESET</button><button class="btn" style="background:#ff00ff;color:#fff" id="btnSaveBanner" onclick="saveBanner()">SIMPAN BANER</button></div>
+</div>
+<div class="card" style="border:2px solid #ff00ff"><h3>BANER (<span id="bannerCount">0</span>)</h3><div id="bannerList"></div>
+<div class="row"><button class="btn btn-blue" onclick="previewBannerUser()">PREVIEW</button><button class="btn btn-red" onclick="hapusSemuaBanner()">HAPUS SEMUA</button></div>
+</div>
+<div class="card" style="border:2px solid #2962ff">
+<h3>💳 QRIS</h3>
+<div class="filebox"><b>Upload QRIS</b><br><input type="file" accept="image/*" onchange="setQris(this)"><p id="qrisInfo">Belum ada</p><img id="qrisPreview" style="display:none;max-height:180px;margin-top:8px"></div>
+<input id="a_qrisName" value="Zero27Pedia OFFICIAL">
+<input id="a_wa" value="08xxxx">
+<button class="btn btn-blue" onclick="saveQris()">SIMPAN QRIS</button>
+</div>
+<div class="card" style="border:2px solid #ff8a00">
+<h3>🏷️ PRODUK - LINK PER PRODUK</h3>
+<input type="hidden" id="e_idx" value="-1">
+<input id="a_name" placeholder="Nama Produk">
+<div class="row"><div><input id="a_oldprice" type="number" placeholder="Harga Normal"><small>Normal</small></div><div><input id="a_price" type="number" placeholder="Harga Diskon"><small>Diskon</small></div></div>
+<div class="row"><input id="a_stock" type="number" value="100"><input id="a_label" placeholder="Label"></div>
+<div class="filebox2">
+<b>🖼️ GAMBAR PRODUK</b><br>
+<input type="file" accept="image/*" onchange="setGambar(this)">
+<p id="gambarInfo">Upload gambar</p>
+<img id="gambarPreview" style="display:none;max-height:220px;margin-top:8px">
+</div>
+<div class="card" style="border:2px solid #00e676;background:#0e0e14;margin:6px 0">
+<h3 style="color:#00e676">🔗 LINK DOWNLOAD (WAJIB PER PRODUK)</h3>
+<input id="a_link" type="url" placeholder="https://... link file produk ini">
+<div class="row"><button class="btn btn-dark" style="padding:8px;font-size:11px" onclick="convertGDrive()">CONVERT GDRIVE</button><button class="btn btn-dark" style="padding:8px;font-size:11px" onclick="testLink()">TEST LINK</button></div>
+<div id="linkPreview" class="link-preview" style="display:none"><b style="color:#00e676">Preview:</b><br><span id="linkPreviewText"></span><br><small id="linkTypeInfo" style="color:#ffea00"></small></div>
+<input id="a_link2" type="url" placeholder="Link Cadangan">
+<input id="a_linkPass" type="text" placeholder="Password">
+</div>
+<textarea id="a_desc" rows="3" placeholder="Deskripsi"></textarea>
+<button class="btn btn-orange" id="btnSave" onclick="saveProd()">💾 SIMPAN PRODUK</button>
+<button class="btn btn-dark" onclick="resetForm()">RESET</button>
+</div>
+<div class="card"><h3>📦 PRODUK TERSIMPAN</h3><div id="a_list"></div></div>
+<div class="card" style="border:3px solid #ffea00;background:linear-gradient(135deg,#1a1a00,#15151e)">
+<h3 style="color:#ffea00">📜 RIWAYAT ORDER - FIX LINK PER PRODUK</h3>
+<div class="search-box">
+<input id="searchOrder" placeholder="Cari nama / produk..." oninput="renderRiwayatOrder()">
+<div class="row" style="margin-top:6px">
+<button class="btn btn-dark" style="padding:8px;font-size:11px" onclick="exportRiwayatCSV()">EXPORT CSV</button>
+<button class="btn btn-red" style="padding:8px;font-size:11px" onclick="hapusRiwayatOrder()">HAPUS DITOLAK</button>
+</div>
+</div>
+<div class="tabs-order">
+<div class="tab-o active" id="tabOrderAll" onclick="filterOrderRiwayat('all')">SEMUA (<span id="countAll">0</span>)</div>
+<div class="tab-o inactive" id="tabOrderPending" onclick="filterOrderRiwayat('pending')">PENDING (<span id="countPendingTab">0</span>)</div>
+<div class="tab-o inactive" id="tabOrderApproved" onclick="filterOrderRiwayat('approved')">ACC (<span id="countAccTab">0</span>)</div>
+<div class="tab-o inactive" id="tabOrderRejected" onclick="filterOrderRiwayat('rejected')">DITOLAK (<span id="countRejectedTab">0</span>)</div>
+</div>
+<div id="riwayatOrderList"></div>
+</div>
+<div class="card" style="border:2px solid #ff8a00"><h3>⚡ PENDING (<span id="pendingCount">0</span>)</h3><div id="pendingList"></div></div>
+<script>
+let db, prods=[], qrisData=null, qrisTemp=null, curGambar=null, curBannerImg=null, banners=[];
+let orders=JSON.parse(localStorage.getItem('himz_orders_qris')||'[]');
+let filterOrder='all';
+const DB_NAME='Zero27PediaDB_FINAL_TERPISAH';
+function openDB(){return new Promise((res)=>{let req=indexedDB.open(DB_NAME,6);req.onupgradeneeded=e=>{let d=e.target.result;if(!d.objectStoreNames.contains('produk')) d.createObjectStore('produk',{keyPath:'id'});if(!d.objectStoreNames.contains('qris')) d.createObjectStore('qris',{keyPath:'id'});if(!d.objectStoreNames.contains('banners')) d.createObjectStore('banners',{keyPath:'id'});};req.onsuccess=e=>res(e.target.result);});}
+async function saveToDB(store, data){let d=await openDB();return new Promise((res)=>{let tx=d.transaction(store,'readwrite');tx.objectStore(store).put(data);tx.oncomplete=()=>res();});}
+async function getAllFromDB(store){let d=await openDB();return new Promise((res)=>{let tx=d.transaction(store,'readonly');if(!d.objectStoreNames.contains(store)) return res([]);let req=tx.objectStore(store).getAll();req.onsuccess=()=>res(req.result);});}
+async function deleteFromDB(store, id){let d=await openDB();let tx=d.transaction(store,'readwrite');tx.objectStore(store).delete(id);}
+function compressImage(file, cb, maxW=800, q=0.65){let r=new FileReader();r.onload=e=>{let img=new Image();img.onload=()=>{let c=document.createElement('canvas');let w=img.width,h=img.height;if(w>maxW){h=h*(maxW/w);w=maxW;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);let data=c.toDataURL('image/jpeg',q);cb(data);};img.src=e.target.result;};r.readAsDataURL(file);}
+function setQris(i){let f=i.files[0];compressImage(f, data=>{qrisTemp=data;qrisPreview.src=data;qrisPreview.style.display='block';qrisInfo.innerText='✅ OK';},600,0.7);}
+async function saveQris(){if(!qrisTemp&&!qrisData) return alert('Upload dulu');let d={id:1, img:qrisTemp||qrisData.img, name:a_qrisName.value, wa:a_wa.value};await saveToDB('qris',d);qrisData=d;alert('✅ QRIS OK!');}
+function setGambar(i){let f=i.files[0];compressImage(f, data=>{curGambar=data;gambarPreview.src=data;gambarPreview.style.display='block';gambarInfo.innerText='✅ OK';},800,0.65);}
+function setBannerImg(input){let f=input.files[0];if(!f) return;if(f.size>3*1024*1024) return alert('Max 3MB!');compressImage(f, data=>{curBannerImg=data;bannerPreview.src=data;bannerPreview.style.display='block';bannerInfo.innerText=`✅ ${(data.length/1024).toFixed(0)}KB`;},800,0.7);}
+async function saveBanner(){if(!b_title.value.trim()) return alert('Judul wajib!');if(!curBannerImg && b_idx.value==-1) return alert('Upload gambar!');let id=b_idx.value!=-1?parseInt(b_idx.value):Date.now();let old=banners.find(b=>b.id==id);let b={id:id, img:curBannerImg||old?.img, title:b_title.value.trim(), subtitle:b_sub.value.trim()||'Promo', link:b_link.value.trim()||'', productId:b_prodId.value?parseInt(b_prodId.value):null, created:Date.now()};await saveToDB('banners', b);let allLocal=JSON.parse(localStorage.getItem('himz_banners_admin')||'[]');let idx=allLocal.findIndex(x=>x.id==id);if(idx>=0) allLocal[idx]=b; else allLocal.push(b);localStorage.setItem('himz_banners_admin', JSON.stringify(allLocal));localStorage.setItem('zero27_banners', JSON.stringify(allLocal));await loadAll();resetBannerForm();alert(`✅ BANER ${b.title}`);}
+function resetBannerForm(){b_idx.value=-1;b_title.value='';b_sub.value='';b_link.value='';b_prodId.value='';curBannerImg=null;bannerPreview.style.display='none';bannerInfo.innerText='Upload';btnSaveBanner.innerText='SIMPAN BANER';}
+function editBanner(id){let b=banners.find(x=>x.id==id);if(!b) return;b_idx.value=b.id;b_title.value=b.title;b_sub.value=b.subtitle;b_link.value=b.link||'';b_prodId.value=b.productId||'';curBannerImg=b.img;bannerPreview.src=b.img;bannerPreview.style.display='block';window.scrollTo(0,0);btnSaveBanner.innerText='UPDATE BANER';}
+async function delBanner(id){if(!confirm('Hapus baner?')) return;await deleteFromDB('banners', id);let allLocal=JSON.parse(localStorage.getItem('himz_banners_admin')||'[]');allLocal=allLocal.filter(x=>x.id!=id);localStorage.setItem('himz_banners_admin', JSON.stringify(allLocal));localStorage.setItem('zero27_banners', JSON.stringify(allLocal));await loadAll();}
+async function hapusSemuaBanner(){if(!confirm('Hapus SEMUA?')) return;let d=await openDB();let tx=d.transaction('banners','readwrite');tx.objectStore('banners').clear();localStorage.removeItem('himz_banners_admin');localStorage.removeItem('zero27_banners');banners=[];await loadAll();}
+function previewBannerUser(){let b=banners;if(b.length==0) return alert('Belum ada!');let html=b.map(x=>`<div style="margin:8px 0"><img src="${x.img}" style="width:100%;height:120px;object-fit:cover;border-radius:10px"><br><b>${x.title}</b></div>`).join('');let w=window.open('','_blank');w.document.write(`<body style="background:#08080c;color:#fff;font-family:Arial;padding:10px"><h2>Preview</h2>${html}</body>`);}
+function convertGDrive(){let link=a_link.value.trim();if(!link.includes('drive.google.com')) return alert('Bukan GDrive!');let match=link.match(/\/d\/([a-zA-Z0-9-_]+)/);if(!match) return alert('ID tidak ketemu!');let id=match[1];let direct=`https://drive.google.com/uc?export=download&id=${id}`;a_link.value=direct;linkPreview.style.display='block';linkPreviewText.innerText=direct;linkTypeInfo.innerText='✅ Converted';}
+function testLink(){let link=a_link.value.trim();if(!link) return alert('Paste dulu!');linkPreview.style.display='block';linkPreviewText.innerHTML=`<a href="${link}" target="_blank" style="color:#00e676">${link}</a>`;window.open(link,'_blank');}
+function resetForm(){e_idx.value=-1;a_name.value='';a_oldprice.value='';a_price.value='';a_stock.value=100;a_label.value='';a_link.value='';a_link2.value='';a_linkPass.value='';a_desc.value='';curGambar=null;gambarPreview.style.display='none';linkPreview.style.display='none';btnSave.innerText='SIMPAN PRODUK';}
+async function saveProd(){
+ if(!a_name.value||!a_price.value) return alert('Nama & harga wajib!');
+ if(!a_link.value) return alert('Link wajib per produk!');
+ if(!curGambar && e_idx.value==-1) return alert('Upload gambar!');
+ let id=e_idx.value!=-1?parseInt(e_idx.value):Date.now();
+ let old=prods.find(p=>p.id==id);
+ let link=a_link.value.trim();
+ if(!link.startsWith('http')) return alert('Link harus https://');
+ let p={id:id,name:a_name.value,oldprice:parseInt(a_oldprice.value)||0,price:parseInt(a_price.value),label:a_label.value,wa:a_wa.value,desc:a_desc.value,stock:parseInt(a_stock.value)||0,fileLink:link,fileLink2:a_link2.value.trim()||null,fileLinkPass:a_linkPass.value.trim()||null,fileName:'Download Link',fileSize:0,fileBlob:null,gambar:curGambar||old?.gambar,diskonPersen:a_oldprice.value>0?Math.round((a_oldprice.value-a_price.value)/a_oldprice.value*100):0,created:Date.now(),type:'LINK'};
+ await saveToDB('produk', p);await loadAll();resetForm();btnSave.innerText='✅ TERSIMPAN!';setTimeout(()=>{btnSave.innerText='SIMPAN PRODUK';},2000);
+}
+function filterOrderRiwayat(status){filterOrder=status;document.querySelectorAll('.tab-o').forEach(t=>{t.classList.remove('active');t.classList.add('inactive');});if(status==='all') tabOrderAll.classList.add('active');if(status==='pending') tabOrderPending.classList.add('active');if(status==='approved') tabOrderApproved.classList.add('active');if(status==='rejected') tabOrderRejected.classList.add('active');renderRiwayatOrder();}
+function renderRiwayatOrder(){
+ orders=JSON.parse(localStorage.getItem('himz_orders_qris')||'[]');
+ let search=(searchOrder.value||'').toLowerCase();
+ let filtered=[...orders].sort((a,b)=>b.id-a.id);
+ if(filterOrder!=='all') filtered=filtered.filter(o=>o.status===filterOrder);
+ if(search) filtered=filtered.filter(o=> (o.product?.toLowerCase().includes(search)) || (o.userName?.toLowerCase().includes(search)) );
+ countAll.innerText=orders.length;
+ countPendingTab.innerText=orders.filter(o=>o.status==='pending').length;
+ countAccTab.innerText=orders.filter(o=>o.status==='approved').length;
+ countRejectedTab.innerText=orders.filter(o=>o.status==='rejected').length;
+ statTotal.innerText=orders.length;
+ statPending.innerText=orders.filter(o=>o.status==='pending').length;
+ statApproved.innerText=orders.filter(o=>o.status==='approved').length;
+ statRejected.innerText=orders.filter(o=>o.status==='rejected').length;
+ let omset=orders.filter(o=>o.status==='approved').reduce((a,b)=>a+(parseInt(b.price)||0),0);
+ statOmset.innerText='Rp '+omset.toLocaleString('id-ID');
+ let div=document.getElementById('riwayatOrderList');
+ if(filtered.length===0){div.innerHTML=`<p style="text-align:center;color:#888;padding:20px">Tidak ada</p>`;return;}
+ let h='';
+ filtered.forEach(o=>{
+   let color=o.status==='pending'?'#ff8a00':o.status==='approved'?'#00e676':'#ff1744';
+   let text=o.status==='pending'?'PENDING':o.status==='approved'?'DI-ACC':'DITOLAK';
+   let prod=prods.find(p=>p.id===o.productId) || prods.find(p=>p.name===o.product);
+   let linkKirim=o.downloadLink||prod?.fileLink||'-';
+   h+=`<div class="order-card ${o.status}">
+     <div style="display:flex;gap:10px">
+       <img src="${prod?.gambar||''}" style="width:60px;height:60px;border-radius:8px;object-fit:cover;background:#222">
+       <div style="flex:1">
+         <b>${o.product}</b> <small style="background:${color};color:#000;padding:2px 6px;border-radius:10px;font-size:9px">${text}</small><br>
+         <small>👤 ${o.userName||''} • Rp ${parseInt(o.price).toLocaleString('id-ID')}</small><br>
+         <small style="color:#aaa">ID Produk: ${o.productId||'-'} • ${o.time}</small><br>
+         <small style="color:${color}">🔗 ${linkKirim.substring(0,40)}...</small>
+       </div>
+     </div>
+     <div style="margin-top:8px"><img src="${o.bukti}" style="max-height:120px;border-radius:8px;border:1px solid #333"></div>
+     <div class="row" style="margin-top:8px">
+       ${o.status==='pending'?`<button class="btn btn-green" style="padding:8px" onclick="accOrderById(${o.id})">✅ ACC</button><button class="btn btn-red" style="padding:8px" onclick="tolakOrderById(${o.id})">❌ TOLAK</button>`:`<button class="btn btn-blue" style="padding:8px" onclick="lihatLinkOrder(${o.id})">LIHAT LINK</button><button class="btn btn-dark" style="padding:8px" onclick="hapusOrderById(${o.id})">HAPUS</button>`}
+     </div>
+   </div>`;
+ });
+ div.innerHTML=h;
+}
+// === FIX 765+++ UTAMA: PAKAI productId BIAR LINK SESUAI ===
+function accOrderById(orderId){
+ let idx=orders.findIndex(o=>o.id===orderId);
+ if(idx<0) return;
+ let o=orders[idx];
+ let prod = prods.find(pr=>pr.id===o.productId) || prods.find(pr=>pr.name===o.product);
+ if(!prod) return alert('❌ Produk ID '+o.productId+' tidak ketemu! Cek di daftar produk.');
+ if(prod.stock<=0) return alert('Stock habis untuk '+prod.name);
+ prod.stock--;
+ saveToDB('produk',prod);
+ orders[idx].status='approved';
+ orders[idx].product = prod.name;
+ orders[idx].productId = prod.id;
+ orders[idx].downloadLink = prod.fileLink;
+ orders[idx].downloadLink2 = prod.fileLink2||null;
+ orders[idx].downloadLinkPass = prod.fileLinkPass||null;
+ orders[idx].accTime = new Date().toLocaleString('id-ID');
+ localStorage.setItem('himz_orders_qris',JSON.stringify(orders));
+ loadAll();
+ alert(`✅ ACC BERHASIL!\n\nProduk: ${prod.name}\nLink: ${prod.fileLink}\n\nSekarang di USER akan muncul link ini, bukan link produk lain.`);
+}
+function tolakOrderById(orderId){if(!confirm('Tolak?')) return;let idx=orders.findIndex(o=>o.id===orderId);if(idx<0) return;orders[idx].status='rejected';orders[idx].rejectTime=new Date().toLocaleString('id-ID');localStorage.setItem('himz_orders_qris',JSON.stringify(orders));loadAll();}
+function hapusOrderById(orderId){if(!confirm('Hapus permanen?')) return;orders=orders.filter(o=>o.id!==orderId);localStorage.setItem('himz_orders_qris',JSON.stringify(orders));loadAll();}
+function lihatLinkOrder(orderId){let o=orders.find(x=>x.id===orderId);if(!o) return;let prod=prods.find(p=>p.id===o.productId)||prods.find(p=>p.name===o.product);let link=o.downloadLink||prod?.fileLink||'-';alert(`Produk: ${o.product}\nID: ${o.productId}\nLink: ${link}`);if(link.startsWith('http')) window.open(link,'_blank');}
+function hapusRiwayatOrder(){if(!confirm('Hapus DITOLAK saja?')) return;let before=orders.length;orders=orders.filter(o=>o.status!=='rejected');localStorage.setItem('himz_orders_qris',JSON.stringify(orders));loadAll();alert(`Dihapus ${before-orders.length}`);}
+function exportRiwayatCSV(){let csv='ID,Produk,ProductId,Harga,User,Waktu,Status,Link\n';orders.forEach(o=>{csv+=`${o.id},"${o.product}",${o.productId||''},${o.price},"${o.userName||''}","${o.time}",${o.status},"${o.downloadLink||''}"\n`;});let blob=new Blob([csv],{type:'text/csv'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download=`riwayat_${Date.now()}.csv`;a.click();}
+async function loadAll(){let q=await getAllFromDB('qris');if(q.length>0){qrisData=q[0];qrisPreview.src=qrisData.img;qrisPreview.style.display='block';qrisInfo.innerText='QRIS aktif';}prods=await getAllFromDB('produk');banners=await getAllFromDB('banners');try{let lb=JSON.parse(localStorage.getItem('himz_banners_admin')||'[]');lb.forEach(b=>{if(!banners.find(x=>x.id==b.id)) banners.push(b);});}catch(e){}orders=JSON.parse(localStorage.getItem('himz_orders_qris')||'[]');renderList();renderBannerList();renderRiwayatOrder();storageInfo.innerText=`${prods.length} produk + ${banners.length} baner + ${orders.length} order`;infoDB.innerText=`DB: ${DB_NAME}`;}
+function renderBannerList(){let h='';banners.sort((a,b)=>b.id-a.id).forEach(b=>{h+=`<div class="banner-preview-item"><img src="${b.img}"><div class="banner-info"><b style="color:#ff00ff">${b.title}</b><br><small>${b.subtitle}</small><br><div class="row" style="margin-top:6px"><button class="btn btn-dark" style="padding:8px" onclick="editBanner(${b.id})">EDIT</button><button class="btn btn-red" style="padding:8px" onclick="delBanner(${b.id})">HAPUS</button></div></div></div>`;});document.getElementById('bannerList').innerHTML=h||'Belum ada';document.getElementById('bannerCount').innerText=banners.length;}
+function renderList(){let h='';prods.forEach(p=>{h+=`<div class="card" style="border-left:4px solid #00e676"><img src="${p.gambar}" class="img-prod"><b>${p.name} (ID:${p.id})</b><br><small style="color:#00e676">🔗 ${p.fileLink?.substring(0,45)}...</small><br><small>Stock ${p.stock} • Rp ${p.price}</small><br><div class="row"><button class="btn btn-dark" onclick="editP(${p.id})">EDIT</button><button class="btn btn-red" onclick="delP(${p.id})">HAPUS</button></div><button class="btn btn-blue" onclick="testDownloadLink(${p.id})">TEST LINK</button></div>`;});document.getElementById('a_list').innerHTML=h||'Kosong';let pend=orders.filter(o=>o.status=='pending');pendingCount.innerText=pend.length;let ph='';pend.forEach(o=>{ph+=`<div class="card" style="border:1px solid #ff9800"><b>${o.product} (ID:${o.productId||'-'})</b> - Rp ${o.price}<br><small>${o.time} - ${o.userName||''}</small><br><img src="${o.bukti}" style="max-height:180px"><br><div class="row"><button class="btn btn-green" onclick="accOrderById(${o.id})">ACC & KIRIM LINK</button><button class="btn btn-red" onclick="tolakOrderById(${o.id})">TOLAK</button></div></div>`});pendingList.innerHTML=ph||'Tidak ada pending';}
+async function editP(id){let p=prods.find(x=>x.id==id);e_idx.value=p.id;a_name.value=p.name;a_oldprice.value=p.oldprice;a_price.value=p.price;a_stock.value=p.stock;a_label.value=p.label;a_desc.value=p.desc;a_link.value=p.fileLink||'';a_link2.value=p.fileLink2||'';a_linkPass.value=p.fileLinkPass||'';curGambar=p.gambar;if(p.gambar){gambarPreview.src=p.gambar;gambarPreview.style.display='block';}if(p.fileLink){linkPreview.style.display='block';linkPreviewText.innerText=p.fileLink;}window.scrollTo(0,0);}
+async function delP(id){if(confirm('Hapus?')){await deleteFromDB('produk', id);await loadAll();}}
+function testDownloadLink(id){let p=prods.find(x=>x.id==id);if(p.fileLink) window.open(p.fileLink,'_blank');else alert('Gak ada link');}
+function accOrder(i){let o=orders[i];if(o) accOrderById(o.id);}
+function tolakOrder(i){let o=orders[i];if(o) tolakOrderById(o.id);}
+loadAll();
+</script></body></html>
