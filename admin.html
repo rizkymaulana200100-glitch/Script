@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ADMIN - FIREBASE FINAL file-d7ce7</title>
+<title>ADMIN - FIREBASE FINAL file-d7ce7 FIX PRODUK HILANG</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}body{background:#08080c;color:#fff;font-family:Arial;padding:12px;padding-bottom:100px}
 .header{background:linear-gradient(90deg,#ff0000,#ff8a00);padding:18px;border-radius:15px;text-align:center;border:2px solid #ff0000}
@@ -40,13 +40,14 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-window.db=db; window.ref=ref; window.push=push; window.onValue=onValue; window.update=update; window.remove=remove; window.get=get; window.child=child; window.set=set;
+// FIX: jangan pakai window.ref biar gak nabrak!
+window._db=db; window._fbRef=ref; window._fbPush=push; window._fbOnValue=onValue; window._fbUpdate=update; window._fbRemove=remove; window._fbGet=get; window._fbChild=child; window._fbSet=set;
 </script>
 </head><body>
 <div class="header">
-<h1>👑 ADMIN FIREBASE FINAL</h1>
-<p>file-d7ce7 - LINK PER PRODUK LIVE</p>
-<small id="storageInfo" style="color:#aaa">Connecting Firebase...</small><br><small id="infoDB" style="color:#00e676">Firebase Realtime Database</small>
+<h1>👑 ADMIN FIREBASE FINAL - FIX</h1>
+<p>file-d7ce7 - LINK PER PRODUK LIVE - Produk gak hilang lagi</p>
+<small id="storageInfo" style="color:#ffea00">Connecting Firebase file-d7ce7...</small><br><small id="infoDB" style="color:#00e676">Firebase Realtime Database LIVE</small>
 </div>
 
 <div class="card" style="border:2px solid #2962ff">
@@ -88,7 +89,7 @@ window.db=db; window.ref=ref; window.push=push; window.onValue=onValue; window.u
 </div>
 
 <div class="card" style="border:2px solid #ff8a00">
-<h3>🏷️ PRODUK - LINK PER PRODUK FIREBASE</h3>
+<h3>🏷️ PRODUK - LINK PER PRODUK FIREBASE - FIX HILANG</h3>
 <input type="hidden" id="e_idx" value="-1">
 <input id="a_name" placeholder="Nama Produk">
 <div class="row"><div><input id="a_oldprice" type="number" placeholder="Harga Normal"><small>Normal</small></div><div><input id="a_price" type="number" placeholder="Harga Diskon"><small>Diskon</small></div></div>
@@ -108,11 +109,11 @@ window.db=db; window.ref=ref; window.push=push; window.onValue=onValue; window.u
 <input id="a_linkPass" type="text" placeholder="Password">
 </div>
 <textarea id="a_desc" rows="3" placeholder="Deskripsi"></textarea>
-<button class="btn btn-orange" id="btnSave" onclick="saveProd()">💾 SIMPAN PRODUK KE FIREBASE</button>
+<button class="btn btn-orange" id="btnSave" onclick="saveProd()">💾 SIMPAN PRODUK KE FIREBASE - FIX GAK HILANG</button>
 <button class="btn btn-dark" onclick="resetForm()">RESET</button>
 </div>
 
-<div class="card"><h3>📦 PRODUK TERSIMPAN FIREBASE</h3><div id="a_list"></div></div>
+<div class="card"><h3>📦 PRODUK TERSIMPAN FIREBASE - LIVE <span id="produkCountHead">0</span></h3><div id="a_list">Memuat Firebase file-d7ce7...</div></div>
 
 <div class="card" style="border:3px solid #ffea00;background:linear-gradient(135deg,#1a1a00,#15151e)">
 <h3 style="color:#ffea00">📜 RIWAYAT ORDER - LIVE FIREBASE</h3>
@@ -135,81 +136,88 @@ window.db=db; window.ref=ref; window.push=push; window.onValue=onValue; window.u
 <div class="card" style="border:2px solid #ff8a00"><h3>⚡ PENDING LIVE (<span id="pendingCount">0</span>)</h3><div id="pendingList"></div></div>
 
 <script>
-let prods=[], qrisData=null, qrisTemp=null, curGambar=null, curBannerImg=null, banners=[], orders=[], ordersMap={};
+let prods=[], qrisData=null, qrisTemp=null, curGambar=null, curBannerImg=null, banners=[], ordersMap={};
 let filterOrder='all', editBannerKey=null, editProdKey=null;
 
-function compressImage(file, cb, maxW=800, q=0.65){let r=new FileReader();r.onload=e=>{let img=new Image();img.onload=()=>{let c=document.createElement('canvas');let w=img.width,h=img.height;if(w>maxW){h=h*(maxW/w);w=maxW;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);cb(c.toDataURL('image/jpeg',q));};img.src=e.target.result;};r.readAsDataURL(file);}
-function setQris(i){let f=i.files[0];compressImage(f, data=>{qrisTemp=data;qrisPreview.src=data;qrisPreview.style.display='block';qrisInfo.innerText='✅ OK';},600,0.7);}
-async function saveQris(){if(!qrisTemp &&!qrisData) return alert('Upload dulu'); await window.set(window.ref(window.db,'qris'),{img:qrisTemp||qrisData.img, name:a_qrisName.value, wa:a_wa.value}); alert('✅ QRIS Firebase OK!');}
-function setGambar(i){let f=i.files[0];compressImage(f, data=>{curGambar=data;gambarPreview.src=data;gambarPreview.style.display='block';gambarInfo.innerText='✅ OK';},800,0.65);}
-function setBannerImg(input){let f=input.files[0];compressImage(f, data=>{curBannerImg=data;bannerPreview.src=data;bannerPreview.style.display='block';bannerInfo.innerText=`✅ ${(data.length/1024).toFixed(0)}KB`;},800,0.7);}
-function convertGDrive(){let link=a_link.value.trim();if(!link.includes('drive.google.com')) return alert('Bukan GDrive!');let m=link.match(/\/d\/([a-zA-Z0-9-_]+)/);if(!m) return alert('ID tidak ketemu!');let direct=`https://drive.google.com/uc?export=download&id=${m[1]}`;a_link.value=direct;linkPreview.style.display='block';linkPreviewText.innerText=direct;}
-function testLink(){let link=a_link.value.trim();if(!link) return alert('Paste dulu!');window.open(link,'_blank');}
-function resetForm(){e_idx.value=-1;editProdKey=null;a_name.value='';a_oldprice.value='';a_price.value='';a_stock.value=100;a_label.value='';a_link.value='';a_link2.value='';a_linkPass.value='';a_desc.value='';curGambar=null;gambarPreview.style.display='none';linkPreview.style.display='none';btnSave.innerText='SIMPAN PRODUK KE FIREBASE';}
-function resetBannerForm(){b_idx.value=-1;editBannerKey=null;b_title.value='';b_sub.value='';b_link.value='';b_prodId.value='';curBannerImg=null;bannerPreview.style.display='none';bannerInfo.innerText='Upload';btnSaveBanner.innerText='SIMPAN BANER FIREBASE';}
+function compressImage(file, cb, maxW=800, q=0.65){if(!file) return; let r=new FileReader();r.onload=e=>{let img=new Image();img.onload=()=>{let c=document.createElement('canvas');let w=img.width,h=img.height;if(w>maxW){h=h*(maxW/w);w=maxW;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);cb(c.toDataURL('image/jpeg',q));};img.src=e.target.result;};r.readAsDataURL(file);}
+function setQris(i){let f=i.files[0];if(!f) return; compressImage(f, data=>{qrisTemp=data;document.getElementById('qrisPreview').src=data;document.getElementById('qrisPreview').style.display='block';document.getElementById('qrisInfo').innerText='✅ OK '+(data.length/1024).toFixed(0)+'KB';},600,0.7);}
+async function saveQris(){if(!qrisTemp &&!qrisData) return alert('Upload dulu'); try{await window._fbSet(window._fbRef(window._db,'qris'),{img:qrisTemp||qrisData.img, name:document.getElementById('a_qrisName').value, wa:document.getElementById('a_wa').value}); alert('✅ QRIS Firebase OK! User langsung lihat QRIS baru!');}catch(e){alert('❌ Gagal QRIS: '+e.message+'\nCek Rules Firebase harus true!');}}
+function setGambar(i){let f=i.files[0];if(!f) return; compressImage(f, data=>{curGambar=data;document.getElementById('gambarPreview').src=data;document.getElementById('gambarPreview').style.display='block';document.getElementById('gambarInfo').innerText='✅ OK '+(data.length/1024).toFixed(0)+'KB';},800,0.65);}
+function setBannerImg(input){let f=input.files[0];if(!f) return; compressImage(f, data=>{curBannerImg=data;document.getElementById('bannerPreview').src=data;document.getElementById('bannerPreview').style.display='block';document.getElementById('bannerInfo').innerText=`✅ ${(data.length/1024).toFixed(0)}KB`;},800,0.7);}
+function convertGDrive(){let link=document.getElementById('a_link').value.trim();if(!link.includes('drive.google.com')) return alert('Bukan GDrive!');let m=link.match(/\/d\/([a-zA-Z0-9-_]+)/);if(!m) return alert('ID tidak ketemu!');let direct=`https://drive.google.com/uc?export=download&id=${m[1]}`;document.getElementById('a_link').value=direct;document.getElementById('linkPreview').style.display='block';document.getElementById('linkPreviewText').innerText=direct;}
+function testLink(){let link=document.getElementById('a_link').value.trim();if(!link) return alert('Paste dulu!');window.open(link,'_blank');}
+function resetForm(){document.getElementById('e_idx').value=-1;editProdKey=null;document.getElementById('a_name').value='';document.getElementById('a_oldprice').value='';document.getElementById('a_price').value='';document.getElementById('a_stock').value=100;document.getElementById('a_label').value='';document.getElementById('a_link').value='';document.getElementById('a_link2').value='';document.getElementById('a_linkPass').value='';document.getElementById('a_desc').value='';curGambar=null;document.getElementById('gambarPreview').style.display='none';document.getElementById('linkPreview').style.display='none';document.getElementById('btnSave').innerText='💾 SIMPAN PRODUK KE FIREBASE - FIX GAK HILANG';}
+function resetBannerForm(){document.getElementById('b_idx').value=-1;editBannerKey=null;document.getElementById('b_title').value='';document.getElementById('b_sub').value='';document.getElementById('b_link').value='';document.getElementById('b_prodId').value='';curBannerImg=null;document.getElementById('bannerPreview').style.display='none';document.getElementById('bannerInfo').innerText='Upload';document.getElementById('btnSaveBanner').innerText='SIMPAN BANER FIREBASE';}
 
 async function saveProd(){
- if(!a_name.value||!a_price.value) return alert('Nama & harga wajib!');
- if(!a_link.value) return alert('Link wajib!');
- if(!curGambar &&!editProdKey) return alert('Upload gambar!');
- let link=a_link.value.trim(); if(!link.startsWith('http')) return alert('Link harus https://');
- let prod={
-   id: editProdKey? prods.find(p=>p.fbKey==editProdKey)?.id || Date.now() : Date.now(),
-   name:a_name.value, oldprice:parseInt(a_oldprice.value)||0, price:parseInt(a_price.value),
-   label:a_label.value, desc:a_desc.value, stock:parseInt(a_stock.value)||0,
-   fileLink:link, fileLink2:a_link2.value.trim()||null, fileLinkPass:a_linkPass.value.trim()||null,
-   gambar:curGambar||prods.find(p=>p.fbKey==editProdKey)?.gambar, created:Date.now()
- };
- if(editProdKey){
-   await window.update(window.ref(window.db,'products/'+editProdKey), prod);
- }else{
-   await window.push(window.ref(window.db,'products'), prod);
- }
- resetForm();
- alert('✅ Produk masuk Firebase! Pembeli langsung lihat!');
+ let nameEl=document.getElementById('a_name'), priceEl=document.getElementById('a_price'), stockEl=document.getElementById('a_stock'), linkEl=document.getElementById('a_link');
+ if(!nameEl.value.trim()||!priceEl.value.trim()) return alert('Nama & harga diskon wajib!');
+ if(!linkEl.value.trim()) return alert('Link download wajib! Teks sesuai gambar: harus ada!');
+ let link=linkEl.value.trim(); if(!link.startsWith('http')) return alert('Link harus https://');
+ if(!curGambar &&!editProdKey) return alert('Upload gambar produk dulu!');
+ let btn=document.getElementById('btnSave'); btn.disabled=true; btn.innerText='⏳ MENYIMPAN KE FIREBASE file-d7ce7...';
+ try{
+   let prod={
+     id: editProdKey? (prods.find(p=>p.fbKey==editProdKey)?.id || Date.now()) : Date.now(),
+     name:nameEl.value.trim(), oldprice:parseInt(document.getElementById('a_oldprice').value)||0, price:parseInt(priceEl.value),
+     label:document.getElementById('a_label').value.trim(), desc:document.getElementById('a_desc').value.trim(), stock:parseInt(stockEl.value)||0,
+     fileLink:link, fileLink2:document.getElementById('a_link2').value.trim()||null, fileLinkPass:document.getElementById('a_linkPass').value.trim()||null,
+     gambar:curGambar||prods.find(p=>p.fbKey==editProdKey)?.gambar, created:Date.now()
+   };
+   if(editProdKey){
+     await window._fbUpdate(window._fbRef(window._db,'products/'+editProdKey), prod);
+   }else{
+     let newRef=await window._fbPush(window._fbRef(window._db,'products'), prod);
+     console.log('Saved key', newRef.key);
+   }
+   resetForm();
+   alert('✅ Produk masuk Firebase file-d7ce7! Cek bawah - sekarang ada! User di script-iota-two.vercel.app langsung lihat!');
+ }catch(e){
+   alert('❌ GAGAL SIMPAN FIREBASE!\n'+e.message+'\n\nSOLUSI: Buka console.firebase.google.com -> file-d7ce7 -> Realtime Database -> Rules ganti jadi:\n{\n "rules": { ".read": true, ".write": true }\n}\nLalu Publish!');
+   console.error(e);
+ }finally{ btn.disabled=false; btn.innerText='💾 SIMPAN PRODUK KE FIREBASE - FIX GAK HILANG'; }
 }
 
 async function saveBanner(){
- if(!b_title.value.trim()) return alert('Judul wajib!');
+ if(!document.getElementById('b_title').value.trim()) return alert('Judul wajib!');
  if(!curBannerImg &&!editBannerKey) return alert('Upload gambar!');
- let banner={
-   title:b_title.value.trim(), subtitle:b_sub.value.trim()||'Promo',
-   link:b_link.value.trim()||'', productId:b_prodId.value?parseInt(b_prodId.value):null,
-   img:curBannerImg||banners.find(b=>b.fbKey==editBannerKey)?.img,
-   created:Date.now()
- };
- if(editBannerKey){
-   await window.update(window.ref(window.db,'banners/'+editBannerKey), banner);
- }else{
-   await window.push(window.ref(window.db,'banners'), banner);
- }
- resetBannerForm();
- alert('✅ Banner Firebase OK!');
+ let btn=document.getElementById('btnSaveBanner'); btn.disabled=true;
+ try{
+   let banner={
+     title:document.getElementById('b_title').value.trim(), subtitle:document.getElementById('b_sub').value.trim()||'Promo',
+     link:document.getElementById('b_link').value.trim()||'', productId:document.getElementById('b_prodId').value?parseInt(document.getElementById('b_prodId').value):null,
+     img:curBannerImg||banners.find(b=>b.fbKey==editBannerKey)?.img,
+     created:Date.now()
+   };
+   if(editBannerKey){ await window._fbUpdate(window._fbRef(window._db,'banners/'+editBannerKey), banner); }else{ await window._fbPush(window._fbRef(window._db,'banners'), banner); }
+   resetBannerForm(); alert('✅ Banner Firebase OK!');
+ }catch(e){alert('Gagal banner: '+e.message);}finally{btn.disabled=false;}
 }
 
-function editP(fbKey){let p=prods.find(x=>x.fbKey==fbKey);if(!p) return;editProdKey=fbKey;e_idx.value=p.id;a_name.value=p.name;a_oldprice.value=p.oldprice;a_price.value=p.price;a_stock.value=p.stock;a_label.value=p.label;a_desc.value=p.desc;a_link.value=p.fileLink||'';a_link2.value=p.fileLink2||'';a_linkPass.value=p.fileLinkPass||'';curGambar=p.gambar;gambarPreview.src=p.gambar;gambarPreview.style.display='block';window.scrollTo(0,0);btnSave.innerText='UPDATE PRODUK FIREBASE';}
-async function delP(fbKey){if(!confirm('Hapus produk Firebase?')) return; await window.remove(window.ref(window.db,'products/'+fbKey));}
-function editBanner(fbKey){let b=banners.find(x=>x.fbKey==fbKey);if(!b) return;editBannerKey=fbKey;b_idx.value=b.id||'';b_title.value=b.title;b_sub.value=b.subtitle;b_link.value=b.link||'';b_prodId.value=b.productId||'';curBannerImg=b.img;bannerPreview.src=b.img;bannerPreview.style.display='block';window.scrollTo(0,0);btnSaveBanner.innerText='UPDATE BANER';}
-async function delBanner(fbKey){if(!confirm('Hapus banner?')) return; await window.remove(window.ref(window.db,'banners/'+fbKey));}
+function editP(fbKey){let p=prods.find(x=>x.fbKey==fbKey);if(!p) return;editProdKey=fbKey;document.getElementById('e_idx').value=p.id;document.getElementById('a_name').value=p.name;document.getElementById('a_oldprice').value=p.oldprice;document.getElementById('a_price').value=p.price;document.getElementById('a_stock').value=p.stock;document.getElementById('a_label').value=p.label||'';document.getElementById('a_desc').value=p.desc||'';document.getElementById('a_link').value=p.fileLink||'';document.getElementById('a_link2').value=p.fileLink2||'';document.getElementById('a_linkPass').value=p.fileLinkPass||'';curGambar=p.gambar;document.getElementById('gambarPreview').src=p.gambar;document.getElementById('gambarPreview').style.display='block';window.scrollTo(0,0);document.getElementById('btnSave').innerText='UPDATE PRODUK FIREBASE';}
+async function delP(fbKey){if(!confirm('Hapus produk Firebase file-d7ce7? User di Vercel juga hilang!')) return; try{await window._fbRemove(window._fbRef(window._db,'products/'+fbKey));}catch(e){alert('Gagal hapus: '+e.message);}}
+function editBanner(fbKey){let b=banners.find(x=>x.fbKey==fbKey);if(!b) return;editBannerKey=fbKey;document.getElementById('b_idx').value=b.id||'';document.getElementById('b_title').value=b.title;document.getElementById('b_sub').value=b.subtitle;document.getElementById('b_link').value=b.link||'';document.getElementById('b_prodId').value=b.productId||'';curBannerImg=b.img;document.getElementById('bannerPreview').src=b.img;document.getElementById('bannerPreview').style.display='block';window.scrollTo(0,0);document.getElementById('btnSaveBanner').innerText='UPDATE BANER';}
+async function delBanner(fbKey){if(!confirm('Hapus banner?')) return; await window._fbRemove(window._fbRef(window._db,'banners/'+fbKey));}
 
-function filterOrderRiwayat(status){filterOrder=status;document.querySelectorAll('.tab-o').forEach(t=>{t.classList.remove('active');t.classList.add('inactive');});document.getElementById('tabOrder'+status.charAt(0).toUpperCase()+status.slice(1)).classList.add('active');renderRiwayatOrder();}
+function filterOrderRiwayat(status){filterOrder=status;document.querySelectorAll('.tab-o').forEach(t=>{t.classList.remove('active');t.classList.add('inactive');});let el=document.getElementById('tabOrder'+status.charAt(0).toUpperCase()+status.slice(1)); if(el) el.classList.add('active'); renderRiwayatOrder();}
 function renderRiwayatOrder(){
- let search=(searchOrder.value||'').toLowerCase();
- let filtered=Object.keys(ordersMap).map(k=>({...ordersMap[k], fbKey:k})).sort((a,b)=>b.createdAt-a.createdAt);
+ let search=(document.getElementById('searchOrder').value||'').toLowerCase();
+ let allKeys=Object.keys(ordersMap);
+ let filtered=allKeys.map(k=>({...ordersMap[k], fbKey:k})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
  if(filterOrder!=='all') filtered=filtered.filter(o=>o.status===filterOrder);
  if(search) filtered=filtered.filter(o=> (o.product?.toLowerCase().includes(search)) || (o.userName?.toLowerCase().includes(search)) );
- document.getElementById('countAll').innerText=Object.keys(ordersMap).length;
+ document.getElementById('countAll').innerText=allKeys.length;
  document.getElementById('countPendingTab').innerText=Object.values(ordersMap).filter(o=>o.status==='pending').length;
  document.getElementById('countAccTab').innerText=Object.values(ordersMap).filter(o=>o.status==='approved').length;
  document.getElementById('countRejectedTab').innerText=Object.values(ordersMap).filter(o=>o.status==='rejected').length;
- document.getElementById('statTotal').innerText=Object.keys(ordersMap).length;
+ document.getElementById('statTotal').innerText=allKeys.length;
  document.getElementById('statPending').innerText=Object.values(ordersMap).filter(o=>o.status==='pending').length;
  document.getElementById('statApproved').innerText=Object.values(ordersMap).filter(o=>o.status==='approved').length;
  document.getElementById('statRejected').innerText=Object.values(ordersMap).filter(o=>o.status==='rejected').length;
  let omset=Object.values(ordersMap).filter(o=>o.status==='approved').reduce((a,b)=>a+(parseInt(b.price)||0),0);
  document.getElementById('statOmset').innerText='Rp '+omset.toLocaleString('id-ID');
  let div=document.getElementById('riwayatOrderList');
- if(filtered.length===0){div.innerHTML=`<p style="text-align:center;color:#888;padding:20px">Tidak ada</p>`;return;}
+ if(filtered.length===0){div.innerHTML=`<p style="text-align:center;color:#888;padding:20px">Tidak ada order - ${filterOrder}</p>`;return;}
  let h='';
  filtered.forEach(o=>{
    let color=o.status==='pending'?'#ff8a00':o.status==='approved'?'#00e676':'#ff1744';
@@ -218,70 +226,75 @@ function renderRiwayatOrder(){
      <div style="display:flex;gap:10px">
        <div style="flex:1">
          <b>${o.product}</b> <small style="background:${color};color:#000;padding:2px 6px;border-radius:10px;font-size:9px">${text}</small><br>
-         <small>👤 ${o.userName||''} • ${o.userEmail||''} • Rp ${parseInt(o.price).toLocaleString('id-ID')}</small><br>
-         <small style="color:#aaa">ID: ${o.productId||'-'} • ${o.time}</small><br>
+         <small>👤 ${o.userName||''} • ${o.userEmail||''} • Rp ${parseInt(o.price||0).toLocaleString('id-ID')}</small><br>
+         <small style="color:#aaa">ID: ${o.productId||'-'} • ${o.time||''}</small><br>
          <small style="color:${color}">🔗 ${(o.downloadLink||'').substring(0,50)}...</small>
        </div>
      </div>
-     <div style="margin-top:8px"><img src="${o.bukti}" style="max-height:120px;border-radius:8px;border:1px solid #333"></div>
+     <div style="margin-top:8px"><img src="${o.bukti||''}" style="max-height:120px;border-radius:8px;border:1px solid #333" onerror="this.style.display='none'"></div>
      <div class="row" style="margin-top:8px">
        ${o.status==='pending'?`<button class="btn btn-green" style="padding:8px" onclick="accOrderFirebase('${o.fbKey}')">✅ ACC</button><button class="btn btn-red" style="padding:8px" onclick="tolakOrderFirebase('${o.fbKey}')">❌ TOLAK</button>`:`<button class="btn btn-blue" style="padding:8px" onclick="lihatLinkOrder('${o.fbKey}')">LIHAT LINK</button><button class="btn btn-dark" style="padding:8px" onclick="hapusOrderFirebase('${o.fbKey}')">HAPUS</button>`}
      </div>
    </div>`;
  });
  div.innerHTML=h;
- let pend=Object.keys(ordersMap).map(k=>({...ordersMap[k], fbKey:k})).filter(o=>o.status==='pending');
+ let pend=allKeys.map(k=>({...ordersMap[k], fbKey:k})).filter(o=>o.status==='pending');
  document.getElementById('pendingCount').innerText=pend.length;
  let ph='';
- pend.forEach(o=>{ph+=`<div class="card" style="border:1px solid #ff9800"><b>${o.product} (ID:${o.productId||'-'})</b> - Rp ${o.price}<br><small>${o.time} - ${o.userName||''}</small><br><img src="${o.bukti}" style="max-height:180px"><br><div class="row"><button class="btn btn-green" onclick="accOrderFirebase('${o.fbKey}')">ACC & KIRIM LINK</button><button class="btn btn-red" onclick="tolakOrderFirebase('${o.fbKey}')">TOLAK</button></div></div>`});
- document.getElementById('pendingList').innerHTML=ph||'Tidak ada pending';
+ pend.forEach(o=>{ph+=`<div class="card" style="border:1px solid #ff9800"><b>${o.product} (ID:${o.productId||'-'})</b> - Rp ${o.price}<br><small>${o.time||''} - ${o.userName||''}</small><br><img src="${o.bukti||''}" style="max-height:180px"><br><div class="row"><button class="btn btn-green" onclick="accOrderFirebase('${o.fbKey}')">ACC & KIRIM LINK</button><button class="btn btn-red" onclick="tolakOrderFirebase('${o.fbKey}')">TOLAK</button></div></div>`});
+ document.getElementById('pendingList').innerHTML=ph||'Tidak ada pending - Semua sudah ACC';
 }
 
 async function accOrderFirebase(fbKey){
  let o=ordersMap[fbKey]; if(!o) return;
  let prod = prods.find(p=>p.id==o.productId) || prods.find(p=>p.fbKey==o.fbKey) || prods.find(p=>p.name==o.product);
- if(!prod){ alert('Produk tidak ketemu!'); return; }
- if(prod.stock<=0) return alert('Stock habis!');
- await window.update(window.ref(window.db,'products/'+prod.fbKey), {stock: prod.stock-1});
- await window.update(window.ref(window.db,'orders/'+fbKey), {
-   status:'approved',
-   downloadLink: prod.fileLink,
-   accTime: new Date().toLocaleString('id-ID')
- });
- alert(`✅ ACC BERHASIL!\nProduk: ${prod.name}\nLink: ${prod.fileLink}\nPembeli OTOMATIS dapat link!`);
+ if(!prod){ alert('Produk '+o.product+' tidak ketemu di Firebase! Mungkin sudah dihapus.'); return; }
+ try{
+   await window._fbUpdate(window._fbRef(window._db,'products/'+prod.fbKey), {stock: Math.max(0,(prod.stock||0)-1)});
+   await window._fbUpdate(window._fbRef(window._db,'orders/'+fbKey), {
+     status:'approved',
+     downloadLink: prod.fileLink,
+     accTime: new Date().toLocaleString('id-ID')
+   });
+   alert(`✅ ACC BERHASIL!\nProduk: ${prod.name}\nLink: ${prod.fileLink}\nPembeli di Vercel OTOMATIS dapat link!`);
+ }catch(e){alert('Gagal ACC: '+e.message);}
 }
-async function tolakOrderFirebase(fbKey){ if(!confirm('Tolak?')) return; await window.update(window.ref(window.db,'orders/'+fbKey), {status:'rejected'}); }
-async function hapusOrderFirebase(fbKey){ if(!confirm('Hapus permanen?')) return; await window.remove(window.ref(window.db,'orders/'+fbKey)); }
+async function tolakOrderFirebase(fbKey){ if(!confirm('Tolak?')) return; await window._fbUpdate(window._fbRef(window._db,'orders/'+fbKey), {status:'rejected'}); }
+async function hapusOrderFirebase(fbKey){ if(!confirm('Hapus permanen?')) return; await window._fbRemove(window._fbRef(window._db,'orders/'+fbKey)); }
 function lihatLinkOrder(fbKey){ let o=ordersMap[fbKey]; if(!o) return; alert(`Produk: ${o.product}\nLink: ${o.downloadLink}`); if(o.downloadLink) window.open(o.downloadLink,'_blank'); }
-async function hapusRiwayatOrder(){ if(!confirm('Hapus yang DITOLAK?')) return; let keys=Object.keys(ordersMap).filter(k=>ordersMap[k].status=='rejected'); for(let k of keys){ await window.remove(window.ref(window.db,'orders/'+k)); } }
+async function hapusRiwayatOrder(){ if(!confirm('Hapus yang DITOLAK?')) return; let keys=Object.keys(ordersMap).filter(k=>ordersMap[k].status=='rejected'); for(let k of keys){ await window._fbRemove(window._fbRef(window._db,'orders/'+k)); } }
 function exportRiwayatCSV(){ let csv='ID,Produk,Price,User,Status,Link\n'; Object.values(ordersMap).forEach(o=>{ csv+=`${o.id||''},"${o.product}",${o.price},"${o.userName||''}",${o.status},"${o.downloadLink||''}"\n`; }); let blob=new Blob([csv],{type:'text/csv'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download=`riwayat_${Date.now()}.csv`; a.click(); }
-function testDownloadLink(fbKey){ let p=prods.find(x=>x.fbKey==fbKey); if(p.fileLink) window.open(p.fileLink,'_blank'); }
 
 function loadAllFirebase(){
- let prodRef=window.ref(window.db,'products');
- window.onValue(prodRef,(snap)=>{
+ document.getElementById('storageInfo').innerText='⏳ Menghubungkan Firebase file-d7ce7...';
+ let prodRef=window._fbRef(window._db,'products');
+ window._fbOnValue(prodRef,(snap)=>{
    prods=[]; if(snap.exists()){ let data=snap.val(); prods=Object.keys(data).map(k=>({...data[k], fbKey:k})); }
-   renderProducts(); document.getElementById('storageInfo').innerText=`${prods.length} produk Firebase Live | ${Object.keys(ordersMap).length} order`;
- });
- let bannerRef=window.ref(window.db,'banners');
- window.onValue(bannerRef,(snap)=>{
+   renderProducts();
+   document.getElementById('storageInfo').innerText=`✅ ${prods.length} produk Firebase LIVE | ${Object.keys(ordersMap).length} order | script-iota-two.vercel.app terhubung`;
+   document.getElementById('produkCountHead').innerText=prods.length;
+ },(err)=>{document.getElementById('storageInfo').innerText='❌ Error Produk: '+err.message+' - Cek Rules!';});
+ let bannerRef=window._fbRef(window._db,'banners');
+ window._fbOnValue(bannerRef,(snap)=>{
    banners=[]; if(snap.exists()){ let data=snap.val(); banners=Object.keys(data).map(k=>({...data[k], fbKey:k})); }
    renderBanners();
  });
- let qrisRef=window.ref(window.db,'qris');
- window.onValue(qrisRef,(snap)=>{ if(snap.exists()){ qrisData=snap.val(); qrisPreview.src=qrisData.img; qrisPreview.style.display='block'; qrisInfo.innerText='QRIS Firebase aktif'; } });
- let orderRef=window.ref(window.db,'orders');
- window.onValue(orderRef,(snap)=>{
+ let qrisRef=window._fbRef(window._db,'qris');
+ window._fbOnValue(qrisRef,(snap)=>{ if(snap.exists()){ let d=snap.val(); window.qrisData=d; document.getElementById('qrisPreview').src=d.img; document.getElementById('qrisPreview').style.display='block'; document.getElementById('qrisInfo').innerText='QRIS Firebase aktif'; } });
+ let orderRef=window._fbRef(window._db,'orders');
+ window._fbOnValue(orderRef,(snap)=>{
    ordersMap={}; if(snap.exists()) ordersMap=snap.val();
    renderRiwayatOrder();
  });
 }
 
 function renderProducts(){
+ let list=document.getElementById('a_list');
+ if(prods.length===0){list.innerHTML='<p style="text-align:center;padding:20px;color:#ff8a00">⚠️ 0 Produk - Belum ada di Firebase file-d7ce7<br><small>Isi form di atas lalu klik SIMPAN</small></p>';return;}
  let h=''; prods.forEach(p=>{
-   h+=`<div class="card" style="border-left:4px solid #00e676"><img src="${p.gambar}" class="img-prod"><b>${p.name} (ID:${p.id})</b><br><small style="color:#00e676">🔗 ${p.fileLink?.substring(0,45)}...</small><br><small>Stock ${p.stock} • Rp ${p.price}</small><br><div class="row"><button class="btn btn-dark" onclick="editP('${p.fbKey}')">EDIT</button><button class="btn btn-red" onclick="delP('${p.fbKey}')">HAPUS</button></div></div>`;
+   h+=`<div class="card" style="border-left:4px solid #00e676"><img src="${p.gambar||''}" class="img-prod" onerror="this.src='https://via.placeholder.com/300'"><b>${p.name} (ID:${p.id})</b><br><small style="color:#00e676">🔗 ${p.fileLink?.substring(0,45)}...</small><br><small>Stock ${p.stock} • Rp ${(p.price||0).toLocaleString('id-ID')}</small><br><div class="row"><button class="btn btn-dark" onclick="editP('${p.fbKey}')">EDIT</button><button class="btn btn-red" onclick="delP('${p.fbKey}')">HAPUS</button></div></div>`;
  });
- document.getElementById('a_list').innerHTML=h||'Kosong Firebase';
+ list.innerHTML=h;
 }
 function renderBanners(){
  let h=''; banners.forEach(b=>{
@@ -290,5 +303,6 @@ function renderBanners(){
  document.getElementById('bannerList').innerHTML=h||'Belum ada'; document.getElementById('bannerCount').innerText=banners.length;
 }
 
-setTimeout(()=>{ loadAllFirebase(); },1500);
+// JANGAN pakai setTimeout lama!
+window.addEventListener('load', ()=>{ setTimeout(loadAllFirebase, 500); });
 </script></body></html>
